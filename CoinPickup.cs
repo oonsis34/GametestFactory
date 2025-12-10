@@ -1,15 +1,56 @@
 using UnityEngine;
+using TMPro;
 
-public class CoinPickup : MonoBehaviour
+
+public class ScoreManager : MonoBehaviour
 {
-    public int coinValue = 1;
+    [Header("References")]
+    public Transform playerReference; 
+    public TextMeshProUGUI scoreTextNormal; 
+    public TextMeshProUGUI scoreTextPro; 
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    [Header("Score Settings")]
+    [Tooltip("ตัวคูณคะแนนต่อวินาที")]
+    public float scoreMultiplier = 1f;
+    [Tooltip("ระยะเวลา Cooldown ก่อนเริ่มนับคะแนน (วินาที)")]
+    public float scoreStartCooldown = 10f; 
+
+    private float currentScore = 0f; 
+    private float cooldownTimer = 0f; 
+    private bool isCooldownOver = false;
+
+    void Update()
     {
-        if (collision.CompareTag("Player"))
+        
+        if (!isCooldownOver)
         {
-            CoinManager.Instance?.AddCoins(coinValue);
-            Destroy(gameObject);
+            cooldownTimer += Time.deltaTime;
+            if (cooldownTimer >= scoreStartCooldown)
+            {
+                isCooldownOver = true;
+            }
+        }
+       
+        else
+        {
+            
+            if (playerReference != null)
+            {
+                currentScore += Time.deltaTime * scoreMultiplier;
+                
+             
+                int displayScore = Mathf.FloorToInt(currentScore);
+                string scoreString = "Score: " + displayScore.ToString();
+                
+                if (scoreTextNormal != null)
+                {
+                    scoreTextNormal.text = scoreString;
+                }
+                if (scoreTextPro != null)
+                {
+                    scoreTextPro.text = scoreString;
+                }
+            }
         }
     }
 }
