@@ -1,27 +1,28 @@
 using UnityEngine;
 
-public class BoundarySquare : MonoBehaviour
+
+public class BoundaryTrigger : MonoBehaviour
 {
     public GameObject gameOverUI;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        
+      
         if (collision.CompareTag("Player"))
         {
-            Debug.Log("Game Over");
-            GameOver();
+            Debug.Log("Game Over: Player hit Boundary Trigger.");
+            TriggerGameOver();
         }
     }
 
-    void GameOver()
+    void TriggerGameOver() 
     {
+    
+        Time.timeScale = 0f;
         
-        Time.timeScale = 0;
         if (gameOverUI != null)
         {
             gameOverUI.SetActive(true); 
         }
-        
     }
 }
