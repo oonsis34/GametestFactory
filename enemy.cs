@@ -1,86 +1,102 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-using UnityEngine.Advertisements;
+
 
 public class EnemyChase : MonoBehaviour
 {
-    public Transform player;
+    [Header("Target and Movement")]
+    public Transform playerTarget; 
+    [Tooltip("‡∏Ñ‡∏ß‡∏≤‡∏°‡πÄ‡∏£‡πá‡∏ß‡πÉ‡∏ô‡∏Å‡∏≤‡∏£‡πÑ‡∏•‡πà‡∏ï‡∏≤‡∏° Player")]
     public float speed = 2f;
-    public GameObject gameOverUI; // ‡™◊ËÕ¡‚¬ß Game Over UI
-    public Button restartButton; // ªÿË¡ Restart
-    private float originalSpeed;
-    private bool isGameOver = false; // µ—«·ª√ ∂“π–‡°¡
-    [SerializeField] InterstitialAdExample interstitialAdExample;
+    
+    [Header("Game Over Settings")]
+    public GameObject gameOverUI; 
+    public Button restartButton; 
+
+  
+    private float originalSpeed; 
+    private bool isGameOver = false; 
+
+[SerializeField] InterstitialAdExample interstitialAdExample; 
 
     void Start()
     {
         originalSpeed = speed;
         if (restartButton != null)
         {
-            // ‡™◊ËÕ¡µËÕø—ß°Ï™—π RestartGame °—∫ªÿË¡ Restart
-            restartButton.onClick.AddListener(() => StartCoroutine(RestartGame()));
+           
+            restartButton.onClick.AddListener(() => StartCoroutine(RestartGameSequence()));
+        }
+        else
+        {
+            Debug.LogWarning("Restart Button not assigned in EnemyChase script.");
         }
     }
 
     void Update()
     {
-        // À“°‡°¡®∫·≈È«À√◊Õ‰¡Ë¡’ player „ÀÈÀ¬ÿ¥°“√∑”ß“π
-        if (isGameOver || player == null) return;
+       
+        if (isGameOver || playerTarget == null) return;
 
-        // Enemy ‰≈Ëµ“¡ player
-        Vector2 direction = (player.position - transform.position).normalized;
-        transform.position = Vector2.MoveTowards(transform.position, player.position, speed * Time.deltaTime);
+       
+        Vector2 direction = (playerTarget.position - transform.position).normalized;
+        transform.position = Vector2.MoveTowards(transform.position, playerTarget.position, speed * Time.deltaTime);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
-            Debug.Log("Game Over");
-            GameOver();
-
+            HandleGameOver();
         }
     }
 
-    void GameOver()
+   
+    void HandleGameOver() // ‡πÄ‡∏õ‡∏•‡∏µ‡πà‡∏¢‡∏ô‡∏ä‡∏∑‡πà‡∏≠‡∏à‡∏≤‡∏Å GameOver ‡πÄ‡∏û‡∏∑‡πà‡∏≠‡∏Ñ‡∏ß‡∏≤‡∏°‡∏ä‡∏±‡∏î‡πÄ‡∏à‡∏ô‡πÉ‡∏ô‡∏Å‡∏≤‡∏£‡πÄ‡∏£‡∏µ‡∏¢‡∏Å‡πÉ‡∏ä‡πâ
     {
-        // µ√«® Õ∫‰¡Ë„ÀÈ‡°¡®∫´È”´ÈÕπ
+        
         if (isGameOver) return;
 
-        isGameOver = true; // µ—Èß ∂“π–«Ë“‡°¡®∫·≈È«
-        speed = 0; // À¬ÿ¥°“√‡§≈◊ËÕπ∑’Ë¢Õß Enemy
-        Time.timeScale = 0; // À¬ÿ¥‡«≈“
+        Debug.Log("Game Over: Player hit by Enemy");
+        isGameOver = true; 
+        speed = 0; 
+        
+       
+        Time.timeScale = 0f; 
 
         if (gameOverUI != null)
         {
-            gameOverUI.SetActive(true); // · ¥ß Game Over UI
+            gameOverUI.SetActive(true); // ‡πÅ‡∏™‡∏î‡∏á Game Over UI
         }
     }
 
-    public IEnumerator RestartGame()
+    
+    public IEnumerator RestartGameSequence() 
     {
+       
+        Debug.Log("Initiating Revive/Restart Sequence...");
 
-        Time.timeScale = 1; // °≈—∫¡“‡≈ËπµËÕ
+        
+        Time.timeScale = 1f; 
+
         if (gameOverUI != null)
         {
-            gameOverUI.SetActive(false); // ´ËÕπ Game Over UI
+            gameOverUI.SetActive(false); // ‡∏ã‡πà‡∏≠‡∏ô Game Over UI
         }
-
-        // ≈¥§«“¡‡√Á«¢Õß Enemy
+        
+       
         speed = 0.2f;
-        Debug.Log("Enemy speed reduced!");
+        Debug.Log("Enemy speed temporarily reduced to 0.2f.");
 
-        // ÀπË«ß‡«≈“ 5 «‘π“∑’
-        yield return new WaitForSeconds(5);
+      
+        yield return new WaitForSecondsRealtime(5f); 
 
-        // §◊π§Ë“§«“¡‡√Á«¢Õß Enemy
+      
         speed = originalSpeed;
-        Debug.Log("Enemy speed restored!");
+        Debug.Log($"Enemy speed restored to {originalSpeed}f.");
 
-        isGameOver = false; // √’‡´Áµ ∂“π–‡°¡
+       
+        isGameOver = false; 
     }
-
-
-
 }
