@@ -2,51 +2,56 @@ using UnityEngine;
 using Cinemachine;
 using System.Collections;
 
-public class CameraControl : MonoBehaviour
-{
-    public CinemachineVirtualCamera camPlayer; 
-    public CinemachineVirtualCamera camEnemy;  
-    public float enemyFocusTime = 3f;          
 
-    public EnemyChase enemyChase; 
-    public SideScrollRun playerMovement; 
+public class GameStartCameraSequence : MonoBehaviour
+{
+    [Header("Cinemachine References")]
+    public CinemachineVirtualCamera camForPlayer; 
+    public CinemachineVirtualCamera camForEnemy;  
+    
+    [Header("Sequence Settings")]
+    [Tooltip("ระยะเวลาที่กล้องโฟกัส Enemy ก่อนเริ่มเกม (วินาที)")]
+    public float enemyFocusDuration = 3f; /
+
+    [Header("Script References (For Enabling/Disabling)")]
+    public EnemyChase enemyAI;
+    public PlayerMovement playerMovement;
 
     void Start()
     {
-        StartCoroutine(SwitchToEnemyAndBack());
+       
+        StartCoroutine(SwitchToEnemyFocusAndStartGame());
     }
 
-    IEnumerator SwitchToEnemyAndBack()
+    IEnumerator SwitchToEnemyFocusAndStartGame()
     {
+       
+        DisableScripts(false); // false คือการปิด
         
-        if (enemyChase != null)
+       
+        camForPlayer.Priority = 0;
+        camForEnemy.Priority = 10; // ใช้ค่า Priority ที่สูงกว่า 1 เพื่อให้แน่ใจว่ามันทำงาน
+
+      
+        yield return new WaitForSeconds(enemyFocusDuration);
+
+       
+        camForPlayer.Priority = 10;
+        camForEnemy.Priority = 0;
+
+        
+        DisableScripts(true); // true คือการเปิด
+    }
+    
+    void DisableScripts(bool enable)
+    {
+        if (enemyAI != null)
         {
-            enemyChase.enabled = false;
+            enemyAI.enabled = enable;
         }
         if (playerMovement != null)
         {
-            playerMovement.enabled = false;
-        }
-
-        
-        camPlayer.Priority = 0;
-        camEnemy.Priority = 1;
-
-        
-        yield return new WaitForSeconds(enemyFocusTime);
-
-        
-        camPlayer.Priority = 1;
-        camEnemy.Priority = 0;
-
-        
-        if (enemyChase != null)
-        {
-            enemyChase.enabled = true;
-        }
-        if (playerMovement != null)
-        {
-            playerMovement.enabled = true;
+            playerMovement.enabled = enable;
         }
     }
 }
